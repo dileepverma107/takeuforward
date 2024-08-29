@@ -66,6 +66,42 @@ public class FirebaseUserService {
                 }
             }
         });
+
+        firestore.collection("Users").addSnapshotListener((snapshots, e) -> {
+            if (e != null) {
+                System.err.println("Listen failed: " + e);
+                return;
+            }
+
+            for (DocumentChange dc : snapshots.getDocumentChanges()) {
+
+                switch (dc.getType()) {
+                    case ADDED:
+
+                        String userId = dc.getDocument().getId();
+                        try {
+                            UserRecord userRecord = FirebaseAuth.getInstance().getUser(userId);
+                            Map<String, Object> dataMap= dc.getDocument().getData();
+                            processNewUser(userRecord, dataMap);
+                        } catch (FirebaseAuthException authException) {
+                            authException.printStackTrace();
+                        }
+                        break;
+                    case MODIFIED:
+                        String updateUserId = dc.getDocument().getId();
+                        try {
+                            UserRecord userRecord = FirebaseAuth.getInstance().getUser(updateUserId);
+                            updateUserByEmail(userRecord, dc.getDocument().getData());
+                        } catch (FirebaseAuthException ex) {
+                            ex.printStackTrace();
+                        }
+                        break;
+                    case REMOVED:
+                        System.out.println("Removed user: " + dc.getDocument().getData());
+                        break;
+                }
+            }
+        });
     }
 
     private void processNewUser(UserRecord userRecord, Map<String, Object> data) {
