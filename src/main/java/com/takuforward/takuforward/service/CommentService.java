@@ -36,7 +36,7 @@ public class CommentService {
     public Comment addComment(Long postId, String username, String content) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(content);
         content = jsonNode.get("content").asText();
-        AppUser user = userRepository.findByUsername(username);
+        AppUser user = userRepository.findByEmail(username);
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
         Comment comment = new Comment();
         comment.setContent(content);
@@ -49,7 +49,7 @@ public class CommentService {
     public Comment replyToComment(Long commentId, String username, String content) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(content);
         content = jsonNode.get("content").asText();
-        AppUser user = userRepository.findByUsername(username);
+        AppUser user = userRepository.findByEmail(username);
         Comment parentComment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));
         Comment comment = new Comment();
         comment.setContent(content);
@@ -65,7 +65,7 @@ public class CommentService {
     }
 
     public void likeComment(Long commentId, String username) {
-        AppUser user = userRepository.findByUsername(username);
+        AppUser user = userRepository.findByEmail(username);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));
 
         CommentLike like = new CommentLike();

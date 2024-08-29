@@ -39,7 +39,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Post> createPost(@RequestParam String username, @RequestBody Post postDetails) {
-        AppUser user = userRepository.findByUsername(username);
+        AppUser user = userRepository.findByEmail(username);
         if (user == null) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -51,6 +51,7 @@ public class PostController {
 
     @PostMapping("/comments/{postId}")
     public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody String content, @RequestParam String username) throws JsonProcessingException {
+        System.out.println(username);
         Comment comment = commentService.addComment(postId, username, content);
         return ResponseEntity.ok(comment);
     }
